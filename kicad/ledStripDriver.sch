@@ -302,8 +302,6 @@ Wire Wire Line
 	10400 1150 10400 1250
 Wire Wire Line
 	10400 1250 10350 1250
-Wire Wire Line
-	10400 1250 10700 1250
 Connection ~ 10400 1250
 Wire Wire Line
 	9550 1250 9750 1250
@@ -314,7 +312,7 @@ Wire Wire Line
 Connection ~ 9750 1250
 Wire Wire Line
 	9750 1250 9950 1250
-Text Label 10400 1250 0    50   ~ 0
+Text Label 10700 1250 0    50   ~ 0
 STRIP1_LOGIC_12V
 $Comp
 L power:+3V3 #PWR0112
@@ -370,8 +368,6 @@ Wire Wire Line
 	10400 2100 10400 2200
 Wire Wire Line
 	10400 2200 10350 2200
-Wire Wire Line
-	10400 2200 10700 2200
 Connection ~ 10400 2200
 Wire Wire Line
 	9550 2200 9750 2200
@@ -383,8 +379,6 @@ Wire Wire Line
 Connection ~ 9750 2200
 Wire Wire Line
 	9750 2200 9950 2200
-Text Label 10400 2200 0    50   ~ 0
-STRIP2_LOGIC_12V
 $Comp
 L power:+3V3 #PWR0114
 U 1 1 5E2854A2
@@ -416,7 +410,7 @@ L Device:R R7
 U 1 1 5E2854B6
 P 10400 2950
 F 0 "R7" H 10470 2996 50  0000 L CNN
-F 1 "5kOhm" H 10470 2905 50  0000 L CNN
+F 1 "5kOhm" H 10400 3100 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 10330 2950 50  0001 C CNN
 F 3 "~" H 10400 2950 50  0001 C CNN
 	1    10400 2950
@@ -440,9 +434,6 @@ Wire Wire Line
 Wire Wire Line
 	10400 3200 10350 3200
 Wire Wire Line
-	10400 3200 10700 3200
-Connection ~ 10400 3200
-Wire Wire Line
 	9550 3200 9750 3200
 Wire Wire Line
 	9750 2750 9750 2800
@@ -452,7 +443,7 @@ Wire Wire Line
 Connection ~ 9750 3200
 Wire Wire Line
 	9750 3200 9950 3200
-Text Label 10400 3200 0    50   ~ 0
+Text Label 10750 3200 0    50   ~ 0
 STRIP3_LOGIC_12V
 Text Label 9550 1250 2    50   ~ 0
 STRIP1_LOGIC_3V
@@ -926,4 +917,46 @@ Wire Wire Line
 Connection ~ 2600 4250
 Wire Wire Line
 	2600 4250 2650 4250
+$Comp
+L Device:R R10
+U 1 1 5E7C1E56
+P 10550 3200
+F 0 "R10" V 10550 3200 50  0000 C CNN
+F 1 "300ohm" V 10450 3150 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 10480 3200 50  0001 C CNN
+F 3 "~" H 10550 3200 50  0001 C CNN
+	1    10550 3200
+	0    -1   -1   0   
+$EndComp
+Connection ~ 10400 3200
+Wire Wire Line
+	11050 3200 10700 3200
+$Comp
+L Device:R R9
+U 1 1 5E7F5FB9
+P 10550 2200
+F 0 "R9" V 10550 2200 50  0000 C CNN
+F 1 "300ohm" V 10450 2200 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 10480 2200 50  0001 C CNN
+F 3 "~" H 10550 2200 50  0001 C CNN
+	1    10550 2200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	10700 2200 11100 2200
+$Comp
+L Device:R R8
+U 1 1 5E7F63B4
+P 10550 1250
+F 0 "R8" V 10550 1250 50  0000 C CNN
+F 1 "300ohm" V 10450 1250 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 10480 1250 50  0001 C CNN
+F 3 "~" H 10550 1250 50  0001 C CNN
+	1    10550 1250
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	10700 1250 11100 1250
+Text Label 10750 2200 0    50   ~ 0
+STRIP2_LOGIC_12V
 $EndSCHEMATC
