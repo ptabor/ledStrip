@@ -13,7 +13,7 @@
 #include "driver/rmt.h"
 #include "led_strip.h"
 
-static const char *TAG = "example";
+static const char *TAG = "WS28xx_demo";
 
 #define RMT_TX_CHANNEL RMT_CHANNEL_0
 
@@ -73,12 +73,11 @@ void led_strip_hsv2rgb(uint32_t h, uint32_t s, uint32_t v, uint32_t *r, uint32_t
     }
 }
 
-class f{
-
-};
 
 void app_main(void)
 {
+	ESP_LOGI(TAG, "install WS28XX driver...");
+
     gpio_pad_select_gpio(15);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(15, GPIO_MODE_OUTPUT);
@@ -94,24 +93,27 @@ void app_main(void)
     uint16_t hue = 0;
     uint16_t start_rgb = 0;
 
-    rmt_config_t config = RMT_DEFAULT_CONFIG_TX(23, RMT_TX_CHANNEL);
-    // set counter clock to 40MHz
-    config.clk_div = 2;
+//    rmt_config_t config = RMT_DEFAULT_CONFIG_TX(23, RMT_TX_CHANNEL);
+//    // set counter clock to 40MHz
+//    config.clk_div = 2;
+//
+//    ESP_ERROR_CHECK(rmt_config(&config));
+//    ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, 0));
 
-    ESP_ERROR_CHECK(rmt_config(&config));
-    ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, 0));
+    // install ws28xx driver
+//    led_strip_config_t strip_config = LED_STRIP_DEFAULT_CONFIG(CONFIG_EXAMPLE_STRIP_LED_NUMBER, (led_strip_dev_t)config.channel);
+//    led_strip_t *strip = led_strip_new_rmt_ws28xx(&strip_config);
 
-    // install ws2812 driver
-    led_strip_config_t strip_config = LED_STRIP_DEFAULT_CONFIG(CONFIG_EXAMPLE_STRIP_LED_NUMBER, (led_strip_dev_t)config.channel);
-    led_strip_t *strip = led_strip_new_rmt_ws2812(&strip_config);
+    led_strip_t *strip = led_strip_new_rmt_ws28xx_with_channel(23, RMT_TX_CHANNEL, 300);
     if (!strip) {
-        ESP_LOGE(TAG, "install WS2812 driver failed");
+        ESP_LOGE(TAG, "install WS28XX driver failed");
     }
     // Clear LED strip (turn off all LEDs)
-    ESP_ERROR_CHECK(strip->clear(strip, 100));
+    ESP_ERROR_CHECK(strip->clear_async(strip));
     // Show simple rainbow chasing pattern
     ESP_LOGI(TAG, "LED Rainbow Chase Start");
-    while (true) {
+    for(int iter=0; iter < 1000; iter++) {
+    	ESP_LOGI(TAG, "iter: %d", iter);
        // for (int i = 0; i < 3; i++) {
             for (int j = 0; j < CONFIG_EXAMPLE_STRIP_LED_NUMBER; j += 1) {
                 // Build RGB values
@@ -121,11 +123,14 @@ void app_main(void)
                 ESP_ERROR_CHECK(strip->set_pixel(strip, j, red/10, 0, blue/10 /*red, green, blue*/));
             }
             // Flush RGB values to LEDs
-            ESP_ERROR_CHECK(strip->refresh(strip, 100));
+            ESP_ERROR_CHECK(strip->refresh_async(strip));
             vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
   //          strip->clear(strip, 50);
   //          vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
     //    }
         start_rgb += 1;
     }
+
+    led_strip_del_rmt_ws28xx_with_channel(strip);
+    ESP_LOGI(TAG, "DONE");
 }

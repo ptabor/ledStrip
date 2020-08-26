@@ -53,6 +53,22 @@ struct led_strip_s {
     esp_err_t (*set_pixel)(led_strip_t *strip, uint32_t index, uint32_t red, uint32_t green, uint32_t blue);
 
     /**
+    * @brief Refresh memory colors to LEDs. Does not wait till the data are propagated to the stripe.
+    *
+    * @param strip: LED strip
+    * @param timeout_ms: timeout value for refreshing task
+    *
+    * @return
+    *      - ESP_OK: Refresh successfully
+    *      - ESP_ERR_TIMEOUT: Refresh failed because of timeout
+    *      - ESP_FAIL: Refresh failed because some other error occurred
+    *
+    * @note:
+    *      After updating the LED colors in the memory, a following invocation of this API is needed to flush colors to strip.
+    */
+    esp_err_t (*refresh_async)(led_strip_t *strip);
+
+    /**
     * @brief Refresh memory colors to LEDs
     *
     * @param strip: LED strip
@@ -66,7 +82,7 @@ struct led_strip_s {
     * @note:
     *      After updating the LED colors in the memory, a following invocation of this API is needed to flush colors to strip.
     */
-    esp_err_t (*refresh)(led_strip_t *strip, uint32_t timeout_ms);
+    esp_err_t (*refresh_sync)(led_strip_t *strip, uint32_t timeout_ms);
 
     /**
     * @brief Clear LED strip (turn off all LEDs)
@@ -79,7 +95,8 @@ struct led_strip_s {
     *      - ESP_ERR_TIMEOUT: Clear LEDs failed because of timeout
     *      - ESP_FAIL: Clear LEDs failed because some other error occurred
     */
-    esp_err_t (*clear)(led_strip_t *strip, uint32_t timeout_ms);
+    esp_err_t (*clear_sync)(led_strip_t *strip, uint32_t timeout_ms);
+    esp_err_t (*clear_async)(led_strip_t *strip);
 
     /**
     * @brief Free LED strip resources
@@ -113,13 +130,17 @@ typedef struct {
     }
 
 /**
-* @brief Install a new ws2812 driver (based on RMT peripheral)
+* @brief Install a new ws28xx driver (based on RMT peripheral)
 *
 * @param config: LED strip configuration
 * @return
 *      LED strip instance or NULL
 */
-led_strip_t *led_strip_new_rmt_ws2812(const led_strip_config_t *config);
+led_strip_t *led_strip_new_rmt_ws28xx(const led_strip_config_t *config);
+
+led_strip_t *led_strip_new_rmt_ws28xx_with_channel(uint8_t gpio, uint8_t rmt_channel, uint32_t max_leds);
+
+esp_err_t led_strip_del_rmt_ws28xx_with_channel(led_strip_t *led_strip);
 
 #ifdef __cplusplus
 }

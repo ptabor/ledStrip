@@ -47,7 +47,7 @@ U 1 1 5E235A41
 P 2050 1950
 F 0 "SW1" H 2050 2217 50  0000 C CNN
 F 1 "SW_DIP_x01" H 2050 2126 50  0000 C CNN
-F 2 "ptabOther:ROCKER_SWITCH" H 2050 1950 50  0001 C CNN
+F 2 "ptabOther:ROCKER_SWITCH_7x0.5mm" H 2050 1950 50  0001 C CNN
 F 3 "~" H 2050 1950 50  0001 C CNN
 	1    2050 1950
 	1    0    0    -1  
@@ -63,7 +63,7 @@ U 1 1 5E236E0F
 P 5000 1950
 F 0 "F2" V 4803 1950 50  0000 C CNN
 F 1 "V12A5-10" V 4894 1950 50  0000 C CNN
-F 2 "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_0031_8201_Horizontal_Open" V 4930 1950 50  0001 C CNN
+F 2 "Fuse:Fuseholder_Cylinder-5x20mm_Stelvio-Kontek_PTF78_Horizontal_Open" V 4930 1950 50  0001 C CNN
 F 3 "~" H 5000 1950 50  0001 C CNN
 	1    5000 1950
 	0    1    1    0   
@@ -89,7 +89,7 @@ U 1 1 5E2475FA
 P 5000 1350
 F 0 "F1" V 4803 1350 50  0000 C CNN
 F 1 "V12A5-10" V 4894 1350 50  0000 C CNN
-F 2 "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_0031_8201_Horizontal_Open" V 4930 1350 50  0001 C CNN
+F 2 "Fuse:Fuseholder_Cylinder-5x20mm_Stelvio-Kontek_PTF78_Horizontal_Open" V 4930 1350 50  0001 C CNN
 F 3 "~" H 5000 1350 50  0001 C CNN
 	1    5000 1350
 	0    1    1    0   
@@ -100,7 +100,7 @@ U 1 1 5E24E9A6
 P 5000 2650
 F 0 "F3" V 4803 2650 50  0000 C CNN
 F 1 "V12A5-10" V 4894 2650 50  0000 C CNN
-F 2 "Fuse:Fuseholder_Cylinder-5x20mm_Schurter_0031_8201_Horizontal_Open" V 4930 2650 50  0001 C CNN
+F 2 "Fuse:Fuseholder_Cylinder-5x20mm_Stelvio-Kontek_PTF78_Horizontal_Open" V 4930 2650 50  0001 C CNN
 F 3 "~" H 5000 2650 50  0001 C CNN
 	1    5000 2650
 	0    1    1    0   
