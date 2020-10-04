@@ -129,7 +129,9 @@ void setup()
     setLeds(rmt_send1, 0, &white);
     setLeds(rmt_send2, 0, &white);
     setLeds(rmt_send3, 0, &white);
+    Serial.printf("All white\n");
     delay(50000);
+    Serial.printf("Init DONE");
 //    setLeds(rmt_send1, 0, &black);
 //    delay(1000);
 }
