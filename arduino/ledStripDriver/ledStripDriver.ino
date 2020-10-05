@@ -14,6 +14,11 @@
 #define NR_OF_LEDS   300
 #define NR_OF_ALL_BITS 24*NR_OF_LEDS
 
+#define MSGEQ_BAND_NO 7
+#define MSGEQ_STROBE_PIN    5
+#define MSGEQ_RESET_PIN    18
+#define MSGEQ_ANALOG_PIN    4
+
 //
 // Note: This example uses Neopixel LED board, 32 LEDs chained one
 //      after another, each RGB LED has its 24 bit value 
@@ -61,9 +66,35 @@ rmt_obj_t* rmt_send3 = NULL;
 #define TICK 25
 
 
+// =========================  MSGEQ7       =================== 
 
+int bandValues[MSGEQ_BAND_NO];
+ 
+void initMSGEQ7()
+{
+  pinMode(MSGEQ_RESET_PIN, OUTPUT);
+  pinMode(MSGEQ_STROBE_PIN, OUTPUT);
+ 
+  // RESET
+  digitalWrite(MSGEQ_RESET_PIN, LOW);
+  digitalWrite(MSGEQ_STROBE_PIN, HIGH);
+}
+ 
+void readMSGEQ7()
+{
+  digitalWrite(MSGEQ_RESET_PIN, HIGH);
+  digitalWrite(MSGEQ_RESET_PIN, LOW);
+ 
+  for (int bandNo = 0; bandNo < MSGEQ_BAND_NO; bandNo++)
+  {
+    digitalWrite(MSGEQ_STROBE_PIN, LOW);
+    delayMicroseconds(30);
+    bandValues[bandNo] = analogRead(MSGEQ_ANALOG_PIN);
+    digitalWrite(MSGEQ_STROBE_PIN, HIGH);
+  }
+}
 
-
+// ==============================================================
 
 void setup() 
 {
@@ -85,6 +116,8 @@ void setup()
     }
 
     digitalWrite(PIN_RELAY, HIGH);   // turn the power to the strip
+
+    initMSGEQ7();
 
 //    pinMode(PIN_OUT3, OUTPUT);
 //    pinMode(PIN_OUT1, OUTPUT);
@@ -129,8 +162,12 @@ void setup()
     setLeds(rmt_send1, 0, &white);
     setLeds(rmt_send2, 0, &white);
     setLeds(rmt_send3, 0, &white);
+    delay(500);
+    setLeds(rmt_send1, 0, &black);
+    setLeds(rmt_send2, 0, &black);
+    setLeds(rmt_send3, 0, &black);    
     Serial.printf("All white\n");
-    delay(50000);
+    delay(5000);
     Serial.printf("Init DONE");
 //    setLeds(rmt_send1, 0, &black);
 //    delay(1000);
@@ -248,22 +285,16 @@ uint32_t white(uint32_t led, uint32_t t_ms) {
   return 0xffffff;
 }
 
-void setLeds(rmt_obj_t* rmt_send, uint32_t t_ms, uint32_t (*funcp)(uint32_t, uint32_t)) {
+
+void drawMap(rmt_obj_t* rmt_send, uint32_t rgbs[]) {
   uint32_t i = 0;
   for (int32_t led=NR_OF_LEDS-1; led>=0; led--) {
-//    Serial.printf("led: %d\n", led);
-    uint32_t rgb = funcp(led, t_ms);
+    uint32_t rgb = rgbs[led];
     uint8_t  color[3];    
 
-    // ws2818
-//    color[0] = rgb % 256;         // BLUE
-//    color[1] = rgb >> 16; //) % 256;  // red
-//    color[2] = (rgb >> 8) % 256; // (rgb % 256);      // Green
-   color[0] = (rgb >> 8) % 256;         // Green
-   color[1] = rgb >> 16; //) % 256;  // red
-   color[2] = rgb % 256;         // BLUE
-
-
+    color[0] = (rgb >> 8) % 256;   // Green
+    color[1] = rgb >> 16;         // red
+    color[2] = rgb % 256;         // BLUE
     
     for (uint8_t col=0; col<3; col++ ) {
       for (uint8_t bit=0; bit<8; bit++){
@@ -286,7 +317,17 @@ void setLeds(rmt_obj_t* rmt_send, uint32_t t_ms, uint32_t (*funcp)(uint32_t, uin
 
   // Send the data
   rmtWrite(rmt_send, led_data, i);
-  delay( round((i / 1000.0) * (CYCLE_NS / 1000.0)) + 5);   
+  delay(round((i / 1000.0) * (CYCLE_NS / 1000.0)) + 5);   
+}
+
+
+
+void setLeds(rmt_obj_t* rmt_send, uint32_t t_ms, uint32_t (*funcp)(uint32_t, uint32_t)) {
+  uint32_t rgbs[NR_OF_LEDS];
+  for (int32_t led=NR_OF_LEDS-1; led>=0; led--) {
+    rgbs[led] = funcp(led, t_ms);
+  }
+  drawMap(rmt_send, rgbs);
 }
 
 void sequence(rmt_obj_t* rmt_send, uint32_t cycles_ms, uint32_t (*funcp)(uint32_t, uint32_t)) {
@@ -372,12 +413,75 @@ uint32_t rainbowSnakes(uint32_t led, uint32_t t_ms) {
 }
 
 
+uint32_t bands(uint32_t led, uint32_t t_ms) {
+//   Serial.printf("rainbowSnakes: %d %d\n", led, t_ms);
+
+  static uint32_t strip[NR_OF_LEDS];
+
+  int32_t snake1_speed = 4;
+  int32_t snake2_speed = -2;
+  int32_t snake3_speed = 1;
+  uint32_t snake1_length=50;
+  uint32_t snake2_length=80;
+  uint32_t snake3_length=140;
+
+  
+  if (led == 0) {
+    for (int i = 0; i < NR_OF_LEDS; ++i) {
+      strip[i] = 0x000000;
+    }
+
+    for (uint32_t i = 0; i < snake1_length; i++) {
+      strip[(snake1_speed * t_ms + i) % NR_OF_LEDS ] = waveLengthToRGB(380+(400 * i / (snake1_length-1) ));
+    }
+
+    for (uint32_t i = 0; i < snake2_length; i++) {
+      strip[(snake2_speed * t_ms + i) % NR_OF_LEDS ] += waveLengthToRGB(380+(400 * i / (snake2_length-1) ));
+    }
+
+     for (uint32_t i = 0; i < snake3_length; i++) {
+      strip[(snake3_speed * t_ms + i) % NR_OF_LEDS ] += waveLengthToRGB(380+(400 * i / (snake3_length-1) ));
+    }
+  }
+  return strip[led];
+}
+
+
 void loop() 
 {
-  sequence(rmt_send1, 5000, &rainbowSnakes);
-  sequence(rmt_send3, 5000, &rainbowSnakes);
-  sequence(rmt_send1, 1000, &lampki);
-  sequence(rmt_send1, 500, &eu);
-  sequence(rmt_send1, 500, &narodowe);
-  sequence(rmt_send1, 1000, &runningRainbow); 
+  // pobieramy amplitudy
+  readMSGEQ7();
+
+  uint32_t rgbs[NR_OF_LEDS];
+  for (int32_t led=NR_OF_LEDS-1; led>=0; led--) {
+    rgbs[led] = 0;
+  }
+ 
+  // wyswietlamy kolejne zakresy
+  for (int bandNo = 0; bandNo < MSGEQ_BAND_NO; bandNo++)
+  {
+    for (int j=0; j < bandValues[bandNo]/100; ++j) {
+      rgbs[40 * bandNo + j] = 0xff0000; 
+    }
+    
+   // sprintf(buf, "aa");
+    
+   // Serial.print(buf);
+   Serial.printf("%4d ", bandValues[bandNo]);
+  }
+  Serial.println();
+
+  drawMap(rmt_send1, rgbs);
+
+  
+//  sequence(rmt_send1, 5000, &rainbowSnakes);
+//  for (i
+
+////  sequence(rmt_send3, 5000, &rainbowSnakes);
+//  sequence(rmt_send1, 1000, &lampki);
+//  sequence(rmt_send1, 500, &eu);
+//  sequence(rmt_send1, 500, &narodowe);
+//  sequence(rmt_send1, 1000, &runningRainbow); 
+//
+//  sequence(rmt_send1, 1000, &runningRainbow);
 }
