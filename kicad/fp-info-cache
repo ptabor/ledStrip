@@ -1,4 +1,4 @@
-18374814448742188
+18378019283233188
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -80885,6 +80885,13 @@ pl.aliexpress.com/item/33034821716.html?spm=a2g0s.9042311.0.0.27424c4dCeSEbB
 2
 2
 ptabOther
+Jack_3.5mm_PJ311_Horizontal
+PJ311 6pin SMD 3.5mm stereo headphones jack.
+headphones jack plug stereo 3.5mm PJ311
+0
+6
+6
+ptabOther
 ROCKER_SWITCH
 
 
@@ -80940,3 +80947,10 @@ THT terminal block RND 205-00023 pitch 10mm size 15x9mm^2 drill 1.3mm pad 2.5mm
 0
 2
 2
+ptabOther
+USB-C-simple
+https://www.aliexpress.com/item/4000857925361.html?spm=a2g0s.9042311.0.0.3c844c4dhWqHq1
+
+0
+10
+7
