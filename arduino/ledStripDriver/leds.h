@@ -53,6 +53,9 @@ typedef struct led_channel_t {
   rmt_obj_t* rmt;
   rmt_data_t* data;
   uint32_t* rgbs;
+
+  // (1.0 -> full, 0.0-> none). 
+  float  brightness;
 } led_channel_t;
 
 

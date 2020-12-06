@@ -8,8 +8,10 @@
 
 #define PIN_BUTTON         14
 #define PIN_ENCODER_BUTTON 25
-#define PIN_ENCODER_A      27
-#define PIN_ENCODER_B      26
+#define PIN_ENCODER_A      26
+#define PIN_ENCODER_B      27
+
+#define ENCODER_MAX   25
 
 #define PIN_RELAY 15
 #define PIN_OUT1  21
@@ -72,35 +74,20 @@ void printBands() {
 
 struct led_channel_t *leds1 = NULL;
 struct led_channel_t *leds2 = NULL;
-struct led_channel_t *leds3 = NULL;   
+struct led_channel_t *leds3 = NULL; 
+
+ESP32Encoder encoder;
 
 void setupButtons() {
   pinMode(PIN_BUTTON, INPUT_PULLUP);
-  pinMode(PIN_ENCODER_BUTTON, INPUT_PULLUP);
-  pinMode(PIN_ENCODER_A, INPUT_PULLUP);
-  pinMode(PIN_ENCODER_B, INPUT_PULLUP);
 }
 
-void ledTestSequence() {
-  drawColor(leds1, RGB_RED);
-  drawColor(leds2, RGB_RED);
-  drawColor(leds3, RGB_RED);
-  delay(500);
-  drawColor(leds1, RGB_GREEN);
-  drawColor(leds2, RGB_GREEN);
-  drawColor(leds3, RGB_GREEN);
-  delay(500);
-  drawColor(leds1, RGB_BLUE);
-  drawColor(leds2, RGB_GREEN);
-  drawColor(leds3, RGB_RED);
-  delay(500);
-  drawColor(leds1, RGB_WHITE);
-  drawColor(leds2, RGB_WHITE);
-  drawColor(leds3, RGB_WHITE);
-  delay(500);
-  drawColor(leds1, RGB_BLACK);
-  drawColor(leds2, RGB_BLACK);
-  drawColor(leds3, RGB_BLACK);
+void setupEncoder() {
+  ESP32Encoder::useInternalWeakPullResistors=UP;
+  encoder.attachSingleEdge(PIN_ENCODER_A, PIN_ENCODER_B);
+  encoder.setCount(ENCODER_MAX);
+
+  pinMode(PIN_ENCODER_BUTTON, INPUT_PULLUP);
 }
 
 void setup() 
@@ -131,8 +118,31 @@ void setup()
     ledTestSequence();
 
     setupButtons();
+    setupEncoder();
     
     Serial.printf("\n\nInit DONE");
+}
+
+void ledTestSequence() {
+  drawColor(leds1, RGB_RED);
+  drawColor(leds2, RGB_RED);
+  drawColor(leds3, RGB_RED);
+  delay(500);
+  drawColor(leds1, RGB_GREEN);
+  drawColor(leds2, RGB_GREEN);
+  drawColor(leds3, RGB_GREEN);
+  delay(500);
+  drawColor(leds1, RGB_BLUE);
+  drawColor(leds2, RGB_GREEN);
+  drawColor(leds3, RGB_RED);
+  delay(500);
+  drawColor(leds1, RGB_WHITE);
+  drawColor(leds2, RGB_WHITE);
+  drawColor(leds3, RGB_WHITE);
+  delay(500);
+  drawColor(leds1, RGB_BLACK);
+  drawColor(leds2, RGB_BLACK);
+  drawColor(leds3, RGB_BLACK);
 }
 
 bool checkButton1pressed() {
@@ -146,10 +156,38 @@ bool checkButton1pressed() {
   return false;
 }
 
+bool checkButtonEncPressed() {
+  static bool buttonPrev = false;
+  boolean buttonPressed = digitalRead(PIN_ENCODER_BUTTON) == 0;
+  if (!buttonPrev && buttonPressed) {
+    buttonPrev = true;
+    return true;
+  }
+  buttonPrev = buttonPressed;
+  return false;
+}
+
 int mode = 5;
 int prev_ms;
 
+void readBrighnessFromEncoder() {
+  if (checkButtonEncPressed()) {
+    encoder.setCount(ENCODER_MAX);
+  }
+  if (encoder.getCount() > ENCODER_MAX) {
+    encoder.setCount(ENCODER_MAX);
+  }
+  if (encoder.getCount() < 0) {
+    encoder.setCount(0);
+  }
+  // Exponential brightness works better. 1.22^25 ~=100.
+  leds1->brightness = encoder.getCount() == 0 ? 0.0 : min(pow(1.22, encoder.getCount()-1), 100.0) / 100.0; 
+//  Serial.println("Encoder count = " + String((int32_t)encoder.getCount()) + " brighness:" + leds1->brightness);
+}
+
 void loop() {
+  readBrighnessFromEncoder();
+  
   if (checkButton1pressed()) {
     mode++;
     Serial.printf("Button1 pressed. Mode: %d\n", mode);
@@ -166,7 +204,7 @@ void loop() {
       break;
     case 1: 
       readMSGEQ7();
-      drawBands(leds1, bandValues);  
+      stroboSimple(leds1, bandValues);  
       delay(10);
       break;
     case 2: 

@@ -47,7 +47,7 @@ void lampki(led_channel_t *channel, int t_ms, int prev_t_ms) {
 
 // ============================================================================
 
-void drawBands(led_channel_t* channel, int bandValues[MSGEQ_BAND_NO]) {
+void stroboSimple(led_channel_t* channel, int bandValues[MSGEQ_BAND_NO]) {
   uint32_t *strip=channel->rgbs;
 
   for (int i = 0; i < channel->length; ++i) {
