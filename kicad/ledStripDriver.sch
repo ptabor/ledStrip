@@ -267,7 +267,7 @@ F 3 "~" H 9100 3200 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9350 2850 9350 2900
+	9350 2700 9350 2900
 Wire Wire Line
 	9350 3200 9350 3300
 Wire Wire Line
@@ -333,7 +333,7 @@ F 3 "~" H 9100 4150 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9350 3800 9350 3850
+	9350 3550 9350 3850
 Wire Wire Line
 	9350 4150 9350 4250
 Wire Wire Line
@@ -398,7 +398,7 @@ F 3 "~" H 9100 5150 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9350 4800 9350 4850
+	9350 4550 9350 4850
 Wire Wire Line
 	9350 5150 9350 5250
 Wire Wire Line
@@ -647,7 +647,7 @@ Text Label 5400 2650 0    50   ~ 0
 12V_JOUT3
 Wire Wire Line
 	6050 4400 6250 4400
-Text Label 9700 5150 1    50   ~ 0
+Text Label 9350 4650 0    50   ~ 0
 12V_POST_RELAY
 Text Label 9350 3700 0    50   ~ 0
 12V_POST_RELAY
@@ -843,8 +843,6 @@ NoConn ~ 3950 5750
 NoConn ~ 3950 5650
 NoConn ~ 3950 5450
 NoConn ~ 3950 5150
-NoConn ~ 5050 7150
-NoConn ~ 4900 7150
 NoConn ~ 3950 5050
 NoConn ~ 3950 5550
 NoConn ~ 3950 6750
@@ -1370,7 +1368,7 @@ Wire Wire Line
 Wire Wire Line
 	1150 6700 1150 6900
 Wire Wire Line
-	4750 7150 4750 7450
+	4750 7150 4750 7250
 Wire Wire Line
 	950  4350 4150 4350
 Wire Wire Line
@@ -1439,4 +1437,16 @@ Wire Wire Line
 	6600 5650 6600 5850
 Wire Wire Line
 	3150 3500 3150 3950
+Wire Wire Line
+	5050 7150 5050 7250
+Wire Wire Line
+	5050 7250 4900 7250
+Wire Wire Line
+	4900 7250 4900 7150
+Wire Wire Line
+	4900 7250 4750 7250
+Connection ~ 4900 7250
+Connection ~ 4750 7250
+Wire Wire Line
+	4750 7250 4750 7450
 $EndSCHEMATC
