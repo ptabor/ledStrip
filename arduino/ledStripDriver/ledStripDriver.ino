@@ -17,7 +17,7 @@
 #define PIN_OUT1  21
 #define PIN_OUT2  22
 #define PIN_OUT3  23
-#define NR_OF_LEDS   600
+#define NR_OF_LEDS   300
 
 #define MSGEQ_BAND_NO 7
 #define MSGEQ_STROBE_PIN    5
@@ -167,7 +167,7 @@ bool checkButtonEncPressed() {
   return false;
 }
 
-int mode = 5;
+int mode = 6;
 int prev_ms;
 
 void readBrighnessFromEncoder() {
@@ -186,46 +186,102 @@ void readBrighnessFromEncoder() {
 }
 
 void loop() {
-  readBrighnessFromEncoder();
+  for (int i=0; i<3000; ++i) {
+    readBrighnessFromEncoder();
+    
+    if (checkButton1pressed()) {
+      mode++;
+      Serial.printf("Button1 pressed. Mode: %d\n", mode);
+      prev_ms=0;
+    }
   
-  if (checkButton1pressed()) {
-    mode++;
-    Serial.printf("Button1 pressed. Mode: %d\n", mode);
-  }
-
-  int time_ms = millis();
+    int time_ms = millis();
   
-  switch (mode % 6) {
-    case 0: 
-      drawColor(leds1, RGB_BLACK);
-      drawColor(leds2, RGB_BLACK);
-      drawColor(leds3, RGB_BLACK); 
-      delay(100);
-      break;
-    case 1: 
-      readMSGEQ7();
-      stroboSimple(leds1, bandValues);  
-      delay(10);
-      break;
-    case 2: 
-      drawColor(leds1, RGB_RED);
-      delay(100);
-      break;
-    case 3: 
-      lampki(leds1, time_ms, prev_ms);
-      delay(100);
-      break;
-    case 4: 
-      rainbowSnakesDemo(leds1, time_ms);
-      delay(10);
-      break;
-    case 5: 
-      readMSGEQ7();
-      rainbowSnakesStrobo(leds1, time_ms, bandValues);
-      delay(10);
-      break;
-
+    switch (mode % 6) {
+      case 0: 
+        rainbowSnakesDemo(leds1, time_ms);
+        delay(10);
+        break;
+      case 1: 
+        lampki(leds1, time_ms, prev_ms);
+        delay(10);
+        break;
+      case 2:
+        blyskawica(leds1, time_ms);
+        delay(10);
+        break;
+      case 3: 
+        choinka(leds1, time_ms);
+        delay(10);
+        break;
+      case 4:
+        choinkaBlyskawica(leds1, time_ms);
+        delay(10);
+        break;
+      case 5:
+        if ((time_ms/500)%2 == 0) {
+          blyskawica(leds1, 0);
+        } else {
+          drawColor(leds1, RGB_BLACK);
+        }
+        delay(10);
+        break;
+    }
+    
+    
+  //  switch (mode % 11) {
+  //    case 0: 
+  //      drawColor(leds1, RGB_BLACK);
+  //      drawColor(leds2, RGB_BLACK);
+  //      drawColor(leds3, RGB_BLACK); 
+  //      delay(100);
+  //      break;
+  //    case 1: 
+  //      readMSGEQ7();
+  //      stroboSimple(leds1, bandValues);  
+  //      delay(10);
+  //      break;
+  //    case 2: 
+  //      drawColor(leds1, RGB_RED);
+  //      delay(100);
+  //      break;
+  //    case 3: 
+  //      lampki(leds1, time_ms, prev_ms);
+  //      delay(100);
+  //      break;
+  //    case 4: 
+  //      rainbowSnakesDemo(leds1, time_ms);
+  //      delay(10);
+  //      break;
+  //    case 5: 
+  //      readMSGEQ7();
+  //      rainbowSnakesStrobo(leds1, time_ms, bandValues);
+  //      delay(10);
+  //      break;
+  //    case 6:
+  //      oneByOne(leds1, time_ms, 1000);
+  //      delay(100);
+  //      break;
+  //    case 7: 
+  //      lampki(leds1, time_ms, prev_ms);
+  //      delay(100);
+  //      break;
+  //    case 8:
+  //      blyskawica(leds1, time_ms);
+  //      delay(10);
+  //      break;
+  //    case 9: 
+  //      choinka(leds1, time_ms);
+  //      delay(10);
+  //      break;
+  //    case 10:
+  //      choinkaBlyskawica(leds1, time_ms);
+  //      delay(10);
+  //  }
+    prev_ms = time_ms;
+    Serial.printf("%d %d %d %d\n", digitalRead(PIN_BUTTON), digitalRead(PIN_ENCODER_BUTTON), digitalRead(PIN_ENCODER_A), digitalRead(PIN_ENCODER_B));
   }
-  prev_ms = time_ms;
-  Serial.printf("%d %d %d %d\n", digitalRead(PIN_BUTTON), digitalRead(PIN_ENCODER_BUTTON), digitalRead(PIN_ENCODER_A), digitalRead(PIN_ENCODER_B));
+  Serial.printf("Next", mode);
+//  mode++;
+//  prev_ms=0;
 }

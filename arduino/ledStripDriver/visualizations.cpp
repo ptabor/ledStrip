@@ -1,5 +1,6 @@
 #include "visualizations.h"
 #include "wavelength.h"
+#include <Arduino.h>
 
 #define MSGEQ_BAND_NO 7
 
@@ -13,7 +14,7 @@ uint32_t losowyKolorSwiateczny() {
 void lampki(led_channel_t *channel, int t_ms, int prev_t_ms) {
   uint32_t *strip=channel->rgbs;
   
-  if (prev_t_ms == 0) {
+  if (prev_t_ms == 0 || (t_ms - prev_t_ms > 5000)) {
     for (int i = 0; i < channel->length; ++i) {
       if (rand()%5 == 0) {
         strip[i] = losowyKolorSwiateczny();  
@@ -73,14 +74,17 @@ typedef struct snakeType {
   uint32_t maxLength;
 } snakeType;
 
-
-void rainbowSnakes(led_channel_t *channel, uint32_t t_ms, struct snakeType snakes[], int numSnakes) {
+void clean(led_channel_t *channel) {
   uint32_t *strip=channel->rgbs;
-
   for (int i = 0; i < channel->length; ++i) {
     strip[i] = 0x000000;
   }
+}
 
+
+void rainbowSnakes(led_channel_t *channel, uint32_t t_ms, struct snakeType snakes[], int numSnakes) {
+  uint32_t *strip=channel->rgbs;
+  clean(channel);
   for (int s = 0; s < numSnakes; ++s) {
     if (snakes[s].length > 0 && snakes[s].maxLength > 0) {
       for (uint32_t i = 0; i < snakes[s].length; i++) {
@@ -109,4 +113,54 @@ struct snakeType snakesArray[3] = {snakeType1, snakeType2, snakeType3};
 
 void rainbowSnakesDemo(led_channel_t *channel, uint32_t t_ms) {
   rainbowSnakes(channel, t_ms, snakesArray, 3);
+}
+
+void oneByOne(led_channel_t *channel, int t_ms, int per_one_ms) {
+  uint32_t *strip=channel->rgbs;
+  clean(channel);
+  int led = (t_ms / per_one_ms) % channel->length;
+  strip[led]= 0xffffff;
+  drawMap(channel, strip);
+  Serial.printf("Led: ");
+  Serial.printf(String(led).c_str());
+  Serial.printf("\n");
+}
+
+void blyskawicaI(led_channel_t *channel, int t_ms){
+  uint32_t *strip=channel->rgbs;
+  for (int l = 0; l < 125; ++l) {
+    strip[l] |= (130+int(sin(t_ms/300.0 + l/100.0)*120.0)) << 16;
+  }
+}
+
+
+void choinkaI(led_channel_t *channel, int t_ms){
+  uint32_t *strip=channel->rgbs;
+  for (int l = 0; l < 61; ++l) {
+    strip[l]|=RGB_GREEN;
+  }
+  for (int l = 125; l < 237; ++l) {
+    strip[l]|=RGB_GREEN;
+  }
+}
+
+
+void blyskawica(led_channel_t *channel, int t_ms){
+  clean(channel);
+  blyskawicaI(channel, t_ms);
+  drawMap(channel, channel->rgbs);
+}
+
+
+void choinka(led_channel_t *channel, int t_ms){
+  clean(channel);
+  choinkaI(channel, t_ms);
+  drawMap(channel, channel->rgbs);
+}
+
+void choinkaBlyskawica(led_channel_t *channel, int t_ms) {
+  clean(channel);
+  blyskawicaI(channel, t_ms);
+  choinkaI(channel, t_ms);
+  drawMap(channel, channel->rgbs);  
 }

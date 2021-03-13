@@ -12,4 +12,14 @@ void rainbowSnakesDemo(led_channel_t *channel, uint32_t t_ms);
 
 void rainbowSnakesStrobo(led_channel_t *channel, uint32_t t_ms, int bandValues[7]);
 
+void oneByOne(led_channel_t *channel, int t_ms, int per_one_ms);
+
+void blyskawica(led_channel_t *channel, int t_ms);
+
+void choinka(led_channel_t *channel, int t_ms);
+
+void clean(led_channel_t *channel);
+
+void choinkaBlyskawica(led_channel_t *channel, int t_ms);
+
 #endif

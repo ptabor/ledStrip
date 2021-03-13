@@ -647,8 +647,6 @@ Text Label 5400 2650 0    50   ~ 0
 12V_JOUT3
 Wire Wire Line
 	6050 4400 6250 4400
-Text Label 9350 4650 0    50   ~ 0
-12V_POST_RELAY
 Text Label 9350 3700 0    50   ~ 0
 12V_POST_RELAY
 Text Label 9350 2750 0    50   ~ 0
@@ -668,11 +666,11 @@ Connection ~ 9350 5250
 Wire Wire Line
 	10000 5250 9650 5250
 $Comp
-L Device:R R9
+L Device:R R_L2_12V1
 U 1 1 5E7F5FB9
 P 9500 4250
-F 0 "R9" V 9500 4250 50  0000 C CNN
-F 1 "R_L2_12V" V 9400 4250 50  0000 C CNN
+F 0 "R_L2_12V1" V 9400 4250 50  0000 C CNN
+F 1 "300" V 9500 4250 50  0000 C CNN
 F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 9430 4250 50  0001 C CNN
 F 3 "~" H 9500 4250 50  0001 C CNN
 	1    9500 4250
@@ -745,8 +743,6 @@ Wire Wire Line
 	2900 5650 3150 5650
 Wire Wire Line
 	2900 6050 2900 5650
-Wire Wire Line
-	3950 6050 3850 6050
 Wire Wire Line
 	3950 6000 3950 5950
 Wire Wire Line
@@ -1139,24 +1135,24 @@ Wire Wire Line
 $Comp
 L Device:R R_ENC_B1
 U 1 1 5F69D010
-P 3300 6000
-F 0 "R_ENC_B1" V 3200 5800 50  0000 L CNN
-F 1 "10k" V 3300 5950 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 3230 6000 50  0001 C CNN
-F 3 "~" H 3300 6000 50  0001 C CNN
-	1    3300 6000
-	0    1    1    0   
+P 2850 6850
+F 0 "R_ENC_B1" V 2750 6650 50  0000 L CNN
+F 1 "10k" V 2850 6800 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 2780 6850 50  0001 C CNN
+F 3 "~" H 2850 6850 50  0001 C CNN
+	1    2850 6850
+	-1   0    0    1   
 $EndComp
 $Comp
 L Device:R R_ENC_A1
 U 1 1 5F69DB04
-P 3700 6050
-F 0 "R_ENC_A1" V 3600 5850 50  0000 L CNN
-F 1 "10k" V 3700 5950 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 3630 6050 50  0001 C CNN
-F 3 "~" H 3700 6050 50  0001 C CNN
-	1    3700 6050
-	0    1    1    0   
+P 3600 6850
+F 0 "R_ENC_A1" V 3500 6650 50  0000 L CNN
+F 1 "10k" V 3600 6800 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 3530 6850 50  0001 C CNN
+F 3 "~" H 3600 6850 50  0001 C CNN
+	1    3600 6850
+	-1   0    0    1   
 $EndComp
 $Comp
 L Device:C C_ENC_B1
@@ -1188,7 +1184,7 @@ Wire Wire Line
 	3450 6950 3450 7000
 Connection ~ 3450 7000
 Wire Wire Line
-	3450 7000 3650 7000
+	3450 7000 3600 7000
 Wire Wire Line
 	3650 6550 3650 7000
 Connection ~ 3650 7000
@@ -1351,17 +1347,8 @@ $EndComp
 Wire Wire Line
 	2900 6050 3450 6050
 Wire Wire Line
-	3150 5850 3150 6000
-Connection ~ 3150 6000
-Wire Wire Line
-	3450 6000 3950 6000
-Wire Wire Line
-	3150 6000 3150 6650
-Wire Wire Line
-	3450 6050 3450 6650
+	3450 6050 3450 6350
 Connection ~ 3450 6050
-Wire Wire Line
-	3450 6050 3550 6050
 Connection ~ 1150 6400
 Wire Wire Line
 	1150 6400 1200 6400
@@ -1449,4 +1436,35 @@ Connection ~ 4900 7250
 Connection ~ 4750 7250
 Wire Wire Line
 	4750 7250 4750 7450
+Wire Wire Line
+	3150 5850 3150 6000
+Wire Wire Line
+	3450 6050 3950 6050
+Wire Wire Line
+	3150 6000 3950 6000
+Connection ~ 3150 6000
+Wire Wire Line
+	3150 6000 3150 6350
+Connection ~ 3600 7000
+Wire Wire Line
+	3600 7000 3650 7000
+Wire Wire Line
+	3600 6700 3600 6350
+Wire Wire Line
+	3600 6350 3450 6350
+Connection ~ 3450 6350
+Wire Wire Line
+	3450 6350 3450 6650
+Wire Wire Line
+	3150 7000 2850 7000
+Connection ~ 3150 7000
+Wire Wire Line
+	2850 6700 2850 6350
+Wire Wire Line
+	2850 6350 3150 6350
+Connection ~ 3150 6350
+Wire Wire Line
+	3150 6350 3150 6650
+Text Label 9350 4650 0    50   ~ 0
+12V_POST_RELAY
 $EndSCHEMATC

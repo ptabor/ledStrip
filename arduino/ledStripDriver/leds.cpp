@@ -37,9 +37,16 @@ uint32_t applyBrightness(uint32_t rgb, float brightness) {
 void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
   rmt_data_t* led_data = channel->data;
 
+
   uint32_t i = 0;
   for (int32_t led=channel->length-1; led>=0; led--) {
     uint32_t rgb = applyBrightness(rgbs[led], channel->brightness);
+
+    // Special code for ptab's home 2020: Do not use leds above 2
+    if (led >= 238) {
+      rgb=0x000000;
+    }
+    
     uint8_t  color[3];    
 
     color[0] = (rgb >> 8) % 256;   // Green
