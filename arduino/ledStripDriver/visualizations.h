@@ -22,4 +22,8 @@ void clean(led_channel_t *channel);
 
 void choinkaBlyskawica(led_channel_t *channel, int t_ms);
 
+void grzesia(led_channel_t *channel, int t_ms);
+
+void prefix(led_channel_t *channel, int n, uint32_t color);
+
 #endif

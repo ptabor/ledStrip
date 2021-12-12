@@ -35,6 +35,7 @@ uint32_t applyBrightness(uint32_t rgb, float brightness) {
 
 
 void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
+  if (!channel) return;
   rmt_data_t* led_data = channel->data;
 
 
@@ -43,9 +44,9 @@ void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
     uint32_t rgb = applyBrightness(rgbs[led], channel->brightness);
 
     // Special code for ptab's home 2020: Do not use leds above 2
-    if (led >= 238) {
-      rgb=0x000000;
-    }
+    // if (led >= 238) {
+    //   rgb=0x000000;
+    // }
     
     uint8_t  color[3];    
 
@@ -79,8 +80,10 @@ void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
 
 
 void drawColor(struct led_channel_t *channel, uint32_t rgb) {
+  if (!channel) return;
   for (int i=0; i<channel->length; ++i) {
     channel->rgbs[i] = rgb;
   }
   drawMap(channel, channel->rgbs);
+  Serial.println(channel->length);
 }

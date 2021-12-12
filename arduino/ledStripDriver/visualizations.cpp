@@ -6,25 +6,27 @@
 
 // ===============================================================================
 
-uint32_t losowyKolorSwiateczny() {
-  uint32_t kolory[] = { 0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0xffa500};
-  return kolory[rand()%5];
-}
+// uint32_t losowyKolorSwiateczny() {
+//   uint32_t kolory[] = { 0xFF7521, 0xFFD700, 0xFF4500, /*0x32CD32*/ 0x006400, 0x808000, 0x4682B4, 0x8B4513, 0x800000};
 
-void lampki(led_channel_t *channel, int t_ms, int prev_t_ms) {
+//   //{ 0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0xffa500};
+//   return kolory[rand()%kolory_len];
+// }
+
+void lampki(led_channel_t *channel, int t_ms, int prev_t_ms, uint32_t kolory[], int kolory_len) {
   uint32_t *strip=channel->rgbs;
   
-  if (prev_t_ms == 0 || (t_ms - prev_t_ms > 5000)) {
+  if (prev_t_ms == 0 || (t_ms - prev_t_ms > 1000)) {
     for (int i = 0; i < channel->length; ++i) {
       if (rand()%5 == 0) {
-        strip[i] = losowyKolorSwiateczny();  
+        strip[i] = kolory[rand()%kolory_len];  
       } else {
         strip[i] = 0x000000;
       }
     }
   }
 
-  if (t_ms / 5000 != prev_t_ms / 5000) {
+  if (t_ms / 1000 != prev_t_ms / 1000) {
     // Turn off random;
     while(true) {
       uint32_t l = rand()%channel->length;
@@ -38,13 +40,21 @@ void lampki(led_channel_t *channel, int t_ms, int prev_t_ms) {
     while(true) {
       uint32_t l = rand()%channel->length;
       if (strip[l] == 0x000000) {
-       strip[l] = losowyKolorSwiateczny();  
+       strip[l] = kolory[rand()%kolory_len];
         break; 
       }
     }    
   }
   drawMap(channel, strip);
 }
+
+void lampki(led_channel_t *channel, int t_ms, int prev_t_ms) {
+  uint32_t kolory[] = { 0xFF4500, /*0xFFD700*/0xDAA520, 0xFF4500, /*0x32CD32*/ 0x006400, 0x808000, /*0x4682B4*/0x191970, 0x8B4513, 0x800000};
+  int kolory_len=8;
+
+  lampki(channel, t_ms, prev_t_ms, kolory, kolory_len);
+}
+
 
 // ============================================================================
 
@@ -163,4 +173,37 @@ void choinkaBlyskawica(led_channel_t *channel, int t_ms) {
   blyskawicaI(channel, t_ms);
   choinkaI(channel, t_ms);
   drawMap(channel, channel->rgbs);  
+}
+
+void grzesia(led_channel_t *channel, int t_ms) {
+  uint32_t *strip=channel->rgbs;
+  for (int l = 0; l < channel->length; ++l) {
+    if ((l+(t_ms/100))%3==0) {
+      strip[l]=RGB_RED;
+    }
+    if ((l+(t_ms/100))%3==1) {
+      strip[l]=RGB_GREEN;
+    }
+    if ((l+(t_ms/100))%3==2) {
+      strip[l]=RGB_BLUE;        
+    }
+  }
+  drawMap(channel, strip);  
+}
+
+void prefix(led_channel_t *channel, int n, uint32_t color) {
+  uint32_t *strip=channel->rgbs;
+  for (int l = 0; l < channel->length; ++l) {
+    strip[l] = l<n ? color : 0;
+    // if ((l+(t_ms/100))%3==0) {
+    //   strip[l]=RGB_RED;
+    // }
+    // if ((l+(t_ms/100))%3==1) {
+    //   strip[l]=RGB_GREEN;
+    // }
+    // if ((l+(t_ms/100))%3==2) {
+    //   strip[l]=RGB_BLUE;        
+    // }
+  }
+  drawMap(channel, strip);  
 }
