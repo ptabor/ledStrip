@@ -36,10 +36,10 @@
 //#define TICK 25
 
 // WS2815
-#define CYCLE_NS 1250
-#define T0H_NS 325
-#define T1H_NS 650
-#define RESET 600000
+#define CYCLE_NS 1400
+#define T0H_NS 300   // 220ns~380ns
+#define T1H_NS 800   // 580ns~1.6µs
+#define RESET 300000 // > 280µs
 #define TICK 25
 
 const uint32_t RGB_RED=0xff0000;
@@ -56,6 +56,8 @@ typedef struct led_channel_t {
 
   // (1.0 -> full, 0.0-> none). 
   float  brightness;
+  // that needs to pass for data() being modificable. 
+  int32_t lock_till_ms;
 } led_channel_t;
 
 
@@ -63,5 +65,6 @@ struct led_channel_t* setupLedChannel(int pin, int length);
 
 void drawMap(struct led_channel_t *channel, uint32_t rgbs[]);
 void drawColor(struct led_channel_t *channel, uint32_t rgb);
+uint32_t applyBrightness(uint32_t rgb, float brightness);
 
 #endif

@@ -1,0 +1,1 @@
+"/Users/pp/Library/Arduino15/packages/esp32/hardware/esp32/2.0.2/tools/espota.py" -r -i "192.168.0.252" -p "3232" "--auth=1234" -f "/private/var/folders/yr/btdxsfkn5v7fmypkpl000z1m0000gn/T/arduino-sketch-222FF0FDF247C8B0F9142735E03815D7/ledStripDriver.ino.bin"

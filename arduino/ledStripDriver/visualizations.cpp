@@ -1,6 +1,8 @@
 #include "visualizations.h"
 #include "wavelength.h"
 #include <Arduino.h>
+#include <map>
+#include "math.h"
 
 #define MSGEQ_BAND_NO 7
 
@@ -49,8 +51,8 @@ void lampki(led_channel_t *channel, int t_ms, int prev_t_ms, uint32_t kolory[], 
 }
 
 void lampki(led_channel_t *channel, int t_ms, int prev_t_ms) {
-  uint32_t kolory[] = { 0xFF4500, /*0xFFD700*/0xDAA520, 0xFF4500, /*0x32CD32*/ 0x006400, 0x808000, /*0x4682B4*/0x191970, 0x8B4513, 0x800000};
-  int kolory_len=8;
+  uint32_t kolory[] = { 0xFF4500, /*0xFFD7000xDAA520,*/ 0xFF4500, /*0x32CD32*/ 0x006400, 0x808000, /*0x4682B4*/0x191970, 0x8B4513, 0x800000};
+  int kolory_len=7;
 
   lampki(channel, t_ms, prev_t_ms, kolory, kolory_len);
 }
@@ -91,6 +93,17 @@ void clean(led_channel_t *channel) {
   }
 }
 
+uint32_t rainbowRGB(float f) {
+  return waveLengthToRGB(380+round(400 * f));
+}
+
+void rainbow(led_channel_t *channel, uint32_t t_ms) {
+  uint32_t *strip=channel->rgbs;
+  for (uint32_t i = 0; i < channel->length; i++) {
+    strip[i] = rainbowRGB(pow((float)(channel->length - i - 1) / channel->length, pow(7, sin(t_ms / 5000.0)))); 
+  }
+  drawMap(channel, strip);
+}
 
 void rainbowSnakes(led_channel_t *channel, uint32_t t_ms, struct snakeType snakes[], int numSnakes) {
   uint32_t *strip=channel->rgbs;
@@ -98,7 +111,7 @@ void rainbowSnakes(led_channel_t *channel, uint32_t t_ms, struct snakeType snake
   for (int s = 0; s < numSnakes; ++s) {
     if (snakes[s].length > 0 && snakes[s].maxLength > 0) {
       for (uint32_t i = 0; i < snakes[s].length; i++) {
-        strip[uint32_t(round(snakes[s].speed * t_ms + i + (s * channel->length / numSnakes) )) % channel->length ] = waveLengthToRGB(380+(400 * i / (snakes[s].maxLength - 1) ));
+        strip[uint32_t(round(snakes[s].speed * t_ms + i + (s * channel->length / numSnakes) )) % channel->length ] = rainbowRGB((float)i / (snakes[s].maxLength - 1));
       }
     }
   }
@@ -110,8 +123,8 @@ void rainbowSnakesStrobo(led_channel_t *channel, uint32_t t_ms, int bandValues[M
   struct snakeType snakesArray[MSGEQ_BAND_NO];// = {snakeType1, snakeType2, snakeType3};
   for (int i = 0; i < MSGEQ_BAND_NO; ++i) {
     snakesArray[i].speed=-0.01;
-    snakesArray[i].length=bandValues[i]/3;
-    snakesArray[i].maxLength=34;
+    snakesArray[i].maxLength=channel->length / MSGEQ_BAND_NO;
+    snakesArray[i].length=(bandValues[i]/100.0)*snakesArray[i].maxLength;
   }
   rainbowSnakes(channel, t_ms, snakesArray, MSGEQ_BAND_NO);
 }
@@ -206,4 +219,60 @@ void prefix(led_channel_t *channel, int n, uint32_t color) {
     // }
   }
   drawMap(channel, strip);  
+}
+
+void pulses(led_channel_t *channel, int t_ms, uint32_t color) {
+  float brightness=abs(sin(t_ms/3000.0));
+  Serial.print("snow brightness: ");
+  Serial.println(brightness);
+  drawColor(channel, applyBrightness(color, brightness)); 
+}
+
+void snow(led_channel_t *channel, int t_ms, uint32_t color) {
+  uint32_t colors[] = {color};
+  snow(channel, t_ms, colors, 1);
+}
+
+  typedef struct TStar {
+    int age;
+    uint32_t color;
+
+    void inc() {age++;};
+  } TStar;
+
+void snow(led_channel_t *channel, int t_ms, uint32_t kolory[], int kolory_len) {  
+  static std::map<int, TStar> stars;
+  static int priv_t_ms=0;
+  uint32_t *strip=channel->rgbs;
+
+  for (int i=0; i<channel->length; ++i) {
+    strip[i]=0;
+  }
+  for (auto &s : stars) {
+    s.second.inc();
+    strip[s.first] = applyBrightness(s.second.color, max(0.2, abs(sin(s.second.age/20.0))));
+  }
+
+  if (stars.size()==0) {
+    for (int i=0; i < 200; ++i) {
+      stars[rand()%channel->length]={.age=rand()%10000, .color=kolory[rand()%kolory_len]};
+    }    
+  }
+
+  if (priv_t_ms / 2000 != t_ms / 2000) {
+    stars[rand()%channel->length]={.age=0, .color=kolory[rand()%kolory_len]};
+  }
+
+  if (stars.size() > 250) {
+    std::map<int, TStar>::iterator it = stars.begin();
+    std::advance(it, rand()%stars.size());
+    stars.erase(it);    
+  }
+
+  // float brightness=abs(sin(t_ms/3000.0));
+  // Serial.print("snow brightness: ");
+  // Serial.println(brightness);
+  // drawColor(channel, applyBrightness(color, brightness)); 
+  priv_t_ms= t_ms;
+  drawMap(channel, strip); 
 }

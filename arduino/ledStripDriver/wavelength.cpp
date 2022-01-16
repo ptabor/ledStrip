@@ -61,10 +61,3 @@ uint32_t waveLengthToRGBfull(double Wavelength, double Gamma, double IntensityMa
     uint32_t rgb = ((uint32_t)red<<16) + ((uint32_t)green<<8) + ((uint32_t)blue);
     return rgb;
 }
-
-typedef struct snakeType {
-//   steps_per_ms, can be negative to change direction.
-  float speed;  
-  uint32_t length;
-  uint32_t maxLength;
-} snakeType;

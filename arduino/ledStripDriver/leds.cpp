@@ -16,6 +16,7 @@ struct led_channel_t *setupLedChannel(int pin, int length) {
   channel->data = (rmt_data_t*)malloc(length * sizeof(rmt_data_t) * 24); // 24bits per led
   channel->rgbs = (uint32_t*)malloc(length * sizeof(uint32_t));
   channel->brightness=1.0;
+  channel->lock_till_ms=0;
   
   drawColor(channel, 0x000000);
   
@@ -36,6 +37,9 @@ uint32_t applyBrightness(uint32_t rgb, float brightness) {
 
 void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
   if (!channel) return;
+  if (channel->lock_till_ms - (long int)millis() > 0) {
+    delay(min(channel->lock_till_ms - (long int)millis(), 1000l));
+  }
   rmt_data_t* led_data = channel->data;
 
 
@@ -75,7 +79,7 @@ void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
 
   // Send the data
   rmtWrite(channel->rmt, led_data, i);
-  delay(round((i / 1000.0) * (CYCLE_NS / 1000.0)) + 5);   
+  channel->lock_till_ms = millis() + round((i / 1000.0) * (CYCLE_NS / 1000.0)) + 5;   
 }
 
 
