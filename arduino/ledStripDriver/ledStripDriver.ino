@@ -44,6 +44,7 @@ const char* ssid     = "***REMOVED***";
 const char* password = "Kr3dyt0waD3lph1";
 
 void handleColor();
+void handleBrightness();
 void handlePower();
 void handleMode();
 
@@ -75,7 +76,9 @@ void handleRoot() {
              <a href="/mode?set=6">rainbow</a>
              <a href="/mode?set=7">pulse</a> 
              <a href="/mode?set=8">snow</a>      
-             <a href="/mode?set=9">snow-color</a>            
+             <a href="/mode?set=9">snow-color</a>         
+             <a href="/mode?set=10">google</a>
+             <a href="/mode?set=11">ukraina</a>   
     </p>
     </form>
 </body>
@@ -126,6 +129,7 @@ bool setupWifi() {
   server.on("/color", handleColor);
   server.on("/power", handlePower);
   server.on("/mode", handleMode);
+  server.on("/brightness", handleBrightness);
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("HTTP server started");
@@ -324,20 +328,25 @@ bool checkButtonEncPressed() {
 
 int mode = 0;
 int prev_ms;
+float brightness = -1;
 
 void readBrighnessFromEncoder() {
-  if (checkButtonEncPressed()) {
-    encoder.setCount(ENCODER_MAX);
+  if (brightness <= 0.0) {
+    if (checkButtonEncPressed()) {
+      encoder.setCount(ENCODER_MAX);
+    }
+    if (encoder.getCount() > ENCODER_MAX) {
+      encoder.setCount(ENCODER_MAX);
+    }
+    if (encoder.getCount() < 0) {
+      encoder.setCount(0);
+    }
+    // Exponential brightness works better. 1.22^25 ~=100.
+    leds1->brightness = encoder.getCount() == 0 ? 0.0 : min(pow(1.22, encoder.getCount()-1), 100.0) / 100.0; 
+  //  Serial.println("Encoder count = " + String((int32_t)encoder.getCount()) + " brighness:" + leds1->brightness);
+  } else {
+    leds1->brightness = brightness;
   }
-  if (encoder.getCount() > ENCODER_MAX) {
-    encoder.setCount(ENCODER_MAX);
-  }
-  if (encoder.getCount() < 0) {
-    encoder.setCount(0);
-  }
-  // Exponential brightness works better. 1.22^25 ~=100.
-  leds1->brightness = encoder.getCount() == 0 ? 0.0 : min(pow(1.22, encoder.getCount()-1), 100.0) / 100.0; 
-//  Serial.println("Encoder count = " + String((int32_t)encoder.getCount()) + " brighness:" + leds1->brightness);
 }
 
 //=========================
@@ -347,6 +356,12 @@ void handleColor() {
   String c=server.arg(0);
   server.send(200, "text/plain", "OK");
   drawColor(leds1,std::stoul(c.c_str(),nullptr,0));
+}
+
+void handleBrightness() {
+  String c=server.arg(0);
+  server.send(200, "text/plain", "OK");
+  brightness = max(min(1.0,std::stoul(c.c_str(),nullptr)/100.0), 0.0);
 }
 
 void handleMode() {
@@ -389,7 +404,7 @@ void loop() {
      readBrighnessFromEncoder();
     
     if (checkButton1pressed()) {
-      setMode((mode+1)%10);
+      setMode((mode+1)%12);
       Serial.printf("Button1 pressed. Mode: %d\n", mode);
     }
   
@@ -456,10 +471,22 @@ void loop() {
       snow(leds1, time_ms, /*0xffffff*/ 0xfaebd7);
       delay(1);
       break;
-    case 9:
+    case 9: {
       uint32_t kolory[] = { 0xFF4500, /*0xFFD7000xDAA520,*/ 0xFF4500, /*0x32CD32*/ 0x006400, 0x808000, /*0x4682B4*/0x191970, 0x8B4513, 0x800000};
       snow(leds1, time_ms, kolory, 7);
       delay(1);
+      break;
+    }
+    case 10: {
+      uint32_t google[] = { 0x4285F4,0xDB4437, 0xF4B400, 0x4285F4, 0x0F9D58, 0xDB4437};
+      strips(leds1, time_ms, 50, google, 6);
+      break;
+    }
+    case 11: {
+      uint32_t ukraina[] = { 0x0057b7,0xffd700};
+      strips(leds1, time_ms, 100000000.0, ukraina, 2);
+      break;
+    }
     //  case 10:
     //    choinkaBlyskawica(leds1, time_ms);
     //    delay(10);

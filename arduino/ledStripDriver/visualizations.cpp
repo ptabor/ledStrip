@@ -276,3 +276,12 @@ void snow(led_channel_t *channel, int t_ms, uint32_t kolory[], int kolory_len) {
   priv_t_ms= t_ms;
   drawMap(channel, strip); 
 }
+
+void strips(led_channel_t *channel, int t_ms, int speed, uint32_t kolory[], int kolory_len) {
+  clean(channel);
+  //uint32_t *strip=channel->rgbs;
+  for (int l = 0; l < channel->length; ++l) {
+    channel->rgbs[l] = kolory[min( (l+t_ms/speed)%channel->length / (channel->length / kolory_len),kolory_len - 1)];
+  }
+  drawMap(channel, channel->rgbs);
+}
