@@ -285,3 +285,22 @@ void strips(led_channel_t *channel, int t_ms, int speed, uint32_t kolory[], int 
   }
   drawMap(channel, channel->rgbs);
 }
+
+void snowIncremental(led_channel_t *channel, int t_ms) {
+  static int next_ms=0;
+  if (t_ms >= next_ms) {
+    uint32_t c=0x000000;
+    switch (rand()%5) {
+      case 0: 
+      case 1: 
+        c=0xFFFFFF;
+        break;
+      case 2: 
+        c=0x24B6E9;
+        break;
+    }
+    channel->rgbs[rand()%channel->length] = c;
+    next_ms = t_ms+0;//+ rand()%1;  
+    drawMap(channel, channel->rgbs);
+  }
+}

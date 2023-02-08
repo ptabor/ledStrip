@@ -78,7 +78,8 @@ void handleRoot() {
              <a href="/mode?set=8">snow</a>      
              <a href="/mode?set=9">snow-color</a>         
              <a href="/mode?set=10">google</a>
-             <a href="/mode?set=11">ukraina</a>   
+             <a href="/mode?set=11">ukraina</a>  
+             <a href="/mode?set=12">snow</a>   
     </p>
     </form>
 </body>
@@ -391,7 +392,7 @@ void handlePower() {
 
 void setMode(int new_mode) {
   if (new_mode != mode) {
-    drawColor(leds1, 0x000000);
+  //  drawColor(leds1, 0x000000);
     mode = new_mode;
     prev_ms=0;    
   }
@@ -404,7 +405,7 @@ void loop() {
      readBrighnessFromEncoder();
     
     if (checkButton1pressed()) {
-      setMode((mode+1)%12);
+      setMode((mode+1)%13);
       Serial.printf("Button1 pressed. Mode: %d\n", mode);
     }
   
@@ -479,14 +480,20 @@ void loop() {
     }
     case 10: {
       uint32_t google[] = { 0x4285F4,0xDB4437, 0xF4B400, 0x4285F4, 0x0F9D58, 0xDB4437};
+      brightness = 0.1;
       strips(leds1, time_ms, 50, google, 6);
       break;
     }
     case 11: {
       uint32_t ukraina[] = { 0x0057b7,0xffd700};
+      brightness = 0.3;
       strips(leds1, time_ms, 100000000.0, ukraina, 2);
       break;
     }
+    case 12: {
+      snowIncremental(leds1, time_ms);
+      break;
+    }    
     //  case 10:
     //    choinkaBlyskawica(leds1, time_ms);
     //    delay(10);

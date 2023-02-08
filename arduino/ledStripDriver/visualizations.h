@@ -35,4 +35,6 @@ void snow(led_channel_t *channel, int t_ms, uint32_t color);
 
 void strips(led_channel_t *channel, int t_ms, int speed, uint32_t kolory[], int kolory_len);
 
+void snowIncremental(led_channel_t *channel, int t_ms);
+
 #endif
