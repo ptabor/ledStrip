@@ -479,9 +479,17 @@ void loop() {
       break;
     }
     case 10: {
-      uint32_t google[] = { 0x4285F4,0xDB4437, 0xF4B400, 0x4285F4, 0x0F9D58, 0xDB4437};
+    //  uint32_t google[] = { 0x4285F4,0xDB4437, 0xF4B400, 0x4285F4, 0x0F9D58, 0xDB4437};
+      uint32_t G_BLUE=0x4285F4;
+      uint32_t G_GREEN=0x34A853;
+      uint32_t G_YELLOW=0xFBBC05;
+      uint32_t G_RED=0xEA4335;
+      //BLUE,
+
+    //  uint32_t google[] = { G_RED,G_GREEN,G_BLUE, G_YELLOW,G_RED,G_BLUE};
+      uint32_t google[] = { G_BLUE, G_RED, G_YELLOW, G_BLUE, G_GREEN, G_RED};
       brightness = 0.1;
-      strips(leds1, time_ms, 50, google, 6);
+      strips(leds1, 0, 500, google, 6);
       break;
     }
     case 11: {
