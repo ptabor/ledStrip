@@ -12,6 +12,7 @@
 #include "leds.h"
 #include "visualizations.h"
 
+#include "config.h"
 
 #define PIN_BUTTON         14
 #define PIN_ENCODER_BUTTON 25
@@ -40,8 +41,8 @@
 
 WebServer server(80);
 
-const char* ssid     = "***REMOVED***";
-const char* password = "Kr3dyt0waD3lph1";
+const char* ssid     = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
 
 void handleColor();
 void handleBrightness();
