@@ -50,7 +50,7 @@ const uint32_t RGB_WHITE=0xffffff;
 
 typedef struct led_channel_t {
   int length;
-  rmt_obj_t* rmt;
+  int rmt_pin;
   rmt_data_t* data;
   uint32_t* rgbs;
 

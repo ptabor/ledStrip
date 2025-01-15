@@ -20,6 +20,15 @@ Features:
 ### Back
 
 ![Back view](./kicad/visualization-front.png)
+
+## Building with Arduino IDE:
+
+Install in Arduine IDE board manager:
+ -ESP32
+ -ESP32 from expressif 
+
+In Arduino IDE Library manager:
+ - ESP32Encoder 0.10.2
   
 ## WARNING
 

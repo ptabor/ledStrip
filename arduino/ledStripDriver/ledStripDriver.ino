@@ -48,6 +48,7 @@ void handleColor();
 void handleBrightness();
 void handlePower();
 void handleMode();
+void handleStatus();
 
 void handleRoot() {
   String temp=R""""(
@@ -112,9 +113,10 @@ bool setupWifi() {
   Serial.println("Wifi begin called...");
 
     // Wait for connection
-  for (int i=0; (i< 30)&&(WiFi.status() != WL_CONNECTED); ++i) {
+  for (int i=0; (i< 100)&&(WiFi.status() != WL_CONNECTED); ++i) {
     delay(500);
     Serial.print(".");
+    Serial.println(WiFi.status());
   }
   if (WiFi.status() != WL_CONNECTED) {
     Serial.print("Wifi connection FAILED !!!");
@@ -132,6 +134,7 @@ bool setupWifi() {
   server.on("/power", handlePower);
   server.on("/mode", handleMode);
   server.on("/brightness", handleBrightness);
+  server.on("/status", handleStatus);
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("HTTP server started");
@@ -226,7 +229,7 @@ void setupButtons() {
 }
 
 void setupEncoder() {
-  ESP32Encoder::useInternalWeakPullResistors=UP;
+  ESP32Encoder::useInternalWeakPullResistors=puType::up;
   encoder.attachSingleEdge(PIN_ENCODER_A, PIN_ENCODER_B);
   encoder.setCount(ENCODER_MAX);
 
@@ -387,6 +390,17 @@ void handlePower() {
   }
 
   server.send(200, "text/plain", "OK");
+}
+
+void handleStatus() {
+  String message = "{\n";
+  message += "  \"power\": " + String("true") + String(",\n");
+  message += "  \"brightness\": " + String(brightness) + ",\n";
+  message += "  \"mode\": " + String(mode) + ",\n";
+  message += "  \"color\": " + String(0) + "\n";
+  message += "}\n";
+
+  server.send(200, "text/html", message);
 }
 
 //=========================

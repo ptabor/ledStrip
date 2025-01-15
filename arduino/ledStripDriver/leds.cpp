@@ -2,17 +2,17 @@
 
 #include <Arduino.h>
 
-struct led_channel_t *setupLedChannel(int pin, int length) {
-  rmt_obj_t* rmt;
-  if ((rmt = rmtInit(pin, true, RMT_MEM_64)) == NULL)  {
-    return NULL;
-  }
-  float realTick = rmtSetTick(rmt, TICK); // 1250/25 = 50
-  delay(10);
+struct led_channel_t *setupLedChannel(int rmt_pin, int length) {
+  // rmt_obj_t* rmt;
+  // if ((rmt = rmtInit(pin, true, RMT_MEM_64)) == NULL)  {
+  //   return NULL;
+  // }
+  // float realTick = rmtSetTick(rmt_pin, TICK); // 1250/25 = 50
+  // delay(10);
 
   struct led_channel_t *channel=(struct led_channel_t *)malloc(sizeof(struct led_channel_t));
   channel->length = length;
-  channel->rmt = rmt;
+  channel->rmt_pin = rmt_pin;
   channel->data = (rmt_data_t*)malloc(length * sizeof(rmt_data_t) * 24); // 24bits per led
   channel->rgbs = (uint32_t*)malloc(length * sizeof(uint32_t));
   channel->brightness=1.0;
@@ -78,7 +78,7 @@ void drawMap(struct led_channel_t *channel, uint32_t rgbs[]) {
   led_data[i-1].duration1 += RESET / TICK;
 
   // Send the data
-  rmtWrite(channel->rmt, led_data, i);
+  rmtWrite(channel->rmt_pin, led_data, i, RMT_WAIT_FOR_EVER);
   channel->lock_till_ms = millis() + round((i / 1000.0) * (CYCLE_NS / 1000.0)) + 5;   
 }
 
