@@ -4,7 +4,7 @@
 
 struct led_channel_t *setupLedChannel(int rmt_pin, int length) {
   // rmt_obj_t* rmt;
-  // if ((rmt = rmtInit(pin, true, RMT_MEM_64)) == NULL)  {
+  rmtInit(rmt_pin, RMT_TX_MODE, RMT_MEM_NUM_BLOCKS_1, 40000000/*hz*/); // 1s / 40MHZ = 25us
   //   return NULL;
   // }
   // float realTick = rmtSetTick(rmt_pin, TICK); // 1250/25 = 50

@@ -333,7 +333,7 @@ bool checkButtonEncPressed() {
 
 int mode = 0;
 int prev_ms;
-float brightness = -1;
+float brightness = 1.0;
 
 void readBrighnessFromEncoder() {
   if (brightness <= 0.0) {
@@ -503,13 +503,13 @@ void loop() {
 
     //  uint32_t google[] = { G_RED,G_GREEN,G_BLUE, G_YELLOW,G_RED,G_BLUE};
       uint32_t google[] = { G_BLUE, G_RED, G_YELLOW, G_BLUE, G_GREEN, G_RED};
-      brightness = 0.1;
+     // brightness = 0.1;
       strips(leds1, 0, 500, google, 6);
       break;
     }
     case 11: {
       uint32_t ukraina[] = { 0x0057b7,0xffd700};
-      brightness = 0.3;
+     // brightness = 0.3;
       strips(leds1, time_ms, 100000000.0, ukraina, 2);
       break;
     }
@@ -520,7 +520,8 @@ void loop() {
     //  case 10:
     //    choinkaBlyskawica(leds1, time_ms);
     //    delay(10);
-
+    default:
+      break;
    }
     prev_ms = time_ms;
 //    Serial.printf("%d %d %d %d\n", digitalRead(PIN_BUTTON), digitalRead(PIN_ENCODER_BUTTON), digitalRead(PIN_ENCODER_A), digitalRead(PIN_ENCODER_B));
