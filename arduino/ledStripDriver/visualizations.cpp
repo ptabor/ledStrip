@@ -192,7 +192,7 @@ void grzesia(led_channel_t *channel, int t_ms) {
   uint32_t *strip=channel->rgbs;
   for (int l = 0; l < channel->length; ++l) {
     if ((l+(t_ms/100))%3==0) {
-      strip[l]=RGB_RED;
+      strip[l]=0xC9A9A6; 
     }
     if ((l+(t_ms/100))%3==1) {
       strip[l]=RGB_GREEN;

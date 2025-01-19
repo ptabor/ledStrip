@@ -4,9 +4,12 @@
 
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <WebServer.h>
+//#include <WebServer.h>
 #include <ESPmDNS.h>
 #include <ArduinoOTA.h>
+
+#include "esp_check.h"
+#include "esp_http_server.h"
 
 #include "wavelength.h"
 #include "leds.h"
@@ -39,19 +42,13 @@
 
 //========================== Wifi ===========================
 
-WebServer server(80);
+//WebServer server(80);
 
 const char* ssid     = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 
-void handleColor();
-void handleBrightness();
-void handlePower();
-void handleMode();
-void handleStatus();
 
-void handleRoot() {
-  String temp=R""""(
+String Index=R""""(
 <html>
   <head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">    
  <title>Choinka</title>  
@@ -87,27 +84,8 @@ void handleRoot() {
 </body>
 </html>)"""";
 
-  server.send(200, "text/html", temp);
-}
 
-void handleNotFound() {
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-
-  for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-
-  server.send(404, "text/plain", message);
-}
-
-bool setupWifi() {
+bool setupWifi() { 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("Wifi begin called...");
@@ -129,14 +107,6 @@ bool setupWifi() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/", handleRoot);
-  server.on("/color", handleColor);
-  server.on("/power", handlePower);
-  server.on("/mode", handleMode);
-  server.on("/brightness", handleBrightness);
-  server.on("/status", handleStatus);
-  server.onNotFound(handleNotFound);
-  server.begin();
   Serial.println("HTTP server started");
   return true;
 }
@@ -273,6 +243,8 @@ void setup()
     MDNS.addService("http", "tcp", 80);
     Serial.println("MDNS responder started");
     
+    start_webserver();
+
     Serial.printf("\n\nInit DONE");
 }
 
@@ -331,9 +303,11 @@ bool checkButtonEncPressed() {
   return false;
 }
 
+bool on = true;
 int mode = 0;
 int prev_ms;
 float brightness = 1.0;
+int color = RGB_RED;
 
 void readBrighnessFromEncoder() {
   if (brightness <= 0.0) {
@@ -356,51 +330,143 @@ void readBrighnessFromEncoder() {
 
 //=========================
 
-void handleColor() {
-  setMode(100); // manual mode;
-  String c=server.arg(0);
-  server.send(200, "text/plain", "OK");
-  drawColor(leds1,std::stoul(c.c_str(),nullptr,0));
+esp_err_t index_handler(httpd_req_t *req)
+{
+    /* Send a simple response */
+    //const char resp[] = Index.c_str();
+    httpd_resp_send(req, Index.c_str(), HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
 }
 
-void handleBrightness() {
-  String c=server.arg(0);
-  server.send(200, "text/plain", "OK");
-  brightness = max(min(1.0,std::stoul(c.c_str(),nullptr)/100.0), 0.0);
+httpd_uri_t uri_index = {
+    .uri      = "/",
+    .method   = HTTP_GET,
+    .handler  = index_handler,
+    .user_ctx = NULL
+};
+
+esp_err_t handleBrightness(httpd_req_t *req) {
+  int b = getParamInt(req, "b");
+  brightness = max(min(1.0, b/100.0), 0.0);
+
+  httpd_resp_send(req, "OK", HTTPD_RESP_USE_STRLEN);
+  Serial.print("handleBrightness DONE\n");
+  return ESP_OK;
 }
 
-void handleMode() {
-  String c=server.arg(0);
-  Serial.printf("Setting mode: %s \n", c);
-  Serial.flush();
-  server.send(200, "text/plain", "OK");
-  setMode(std::stoul(c.c_str(),nullptr,0));
-  Serial.printf("Setting mode: %s[DONE]\n", c);
-  Serial.flush();
+esp_err_t handleMode(httpd_req_t *req) {
+  int m = getParamInt(req, "set");
+  mode = m;
+
+  httpd_resp_send(req, "OK", HTTPD_RESP_USE_STRLEN);
+  Serial.print("handleMode DONE:" + String(mode) + "\n");
+  return ESP_OK;
 }
 
-void handlePower() {
-  String c=server.arg(0);
+esp_err_t handleColor(httpd_req_t *req) {
+  color = getParamInt(req, "color");
+  mode = 4;
 
-  if(c=="on") {
+  httpd_resp_send(req, "OK", HTTPD_RESP_USE_STRLEN);
+  Serial.print("handleColor DONE\n");
+  return ESP_OK;
+}
+
+esp_err_t handlePower(httpd_req_t *req) {
+  char out[10];
+  getParam(req, "set", out, sizeof(out));
+  String s(out);
+  // brightness = max(min(1.0, b/100.0), 0.0);
+
+  if(s=="on") {
     digitalWrite(PIN_RELAY, HIGH); 
+    on = true;
   }
-  if(c=="off") {
+  if(s=="off") {
     digitalWrite(PIN_RELAY, LOW); 
+    on = false;
   }
 
-  server.send(200, "text/plain", "OK");
+  httpd_resp_send(req, "OK", HTTPD_RESP_USE_STRLEN);
+  Serial.print("handlePower DONE\n");
+  return ESP_OK;
 }
 
-void handleStatus() {
+esp_err_t handleStatus(httpd_req_t *req) {
+  Serial.printf("handleStatus\n");
   String message = "{\n";
-  message += "  \"power\": " + String("true") + String(",\n");
-  message += "  \"brightness\": " + String(brightness) + ",\n";
+  message += "  \"power\": " + String(on?"true":"false") + String(",\n");
+  message += "  \"brightness\": " + String((int)(brightness*100)) + ",\n";
   message += "  \"mode\": " + String(mode) + ",\n";
-  message += "  \"color\": " + String(0) + "\n";
+  message += "  \"color\": " + String(color) + "\n";
   message += "}\n";
 
-  server.send(200, "text/html", message);
+  httpd_resp_send(req, message.c_str(), message.length());
+  return ESP_OK;
+}
+
+httpd_uri_t uri_brightness = {.uri      = "/brightness", .method   = HTTP_GET,  .handler  = handleBrightness, .user_ctx = NULL};
+httpd_uri_t uri_power = {.uri           = "/power", .method   = HTTP_GET,  .handler  = handlePower, .user_ctx = NULL};
+httpd_uri_t uri_mode  = {.uri           = "/mode",       .method   = HTTP_GET,  .handler  = handleMode, .user_ctx = NULL};
+httpd_uri_t uri_color = {.uri           = "/color",      .method   = HTTP_GET,  .handler  = handleColor, .user_ctx = NULL};
+httpd_uri_t uri_status = {.uri           = "/status",      .method   = HTTP_GET,  .handler  = handleStatus, .user_ctx = NULL};
+
+
+httpd_handle_t start_webserver(void)
+{
+    /* Generate default configuration */
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+
+    /* Empty handle to esp_http_server */
+    httpd_handle_t server = NULL;
+
+    /* Start the httpd server */
+    if (httpd_start(&server, &config) == ESP_OK) {
+        /* Register URI handlers */
+        httpd_register_uri_handler(server, &uri_index);
+        httpd_register_uri_handler(server, &uri_brightness);
+        httpd_register_uri_handler(server, &uri_power);
+        httpd_register_uri_handler(server, &uri_mode);
+        httpd_register_uri_handler(server, &uri_color);
+        httpd_register_uri_handler(server, &uri_status);
+    }
+    /* If server failed to start, handle will be NULL */
+    return server;
+}
+
+// void handleColor() {
+//   Serial.print("handleColor\n");
+//   String c=server.arg(0);
+//   color = std::stoul(c.c_str(),nullptr, 0);
+//   setMode(4); 
+//   server.send(200, "text/plain", "OK");
+// }
+
+static const char* WEBSERVER_TAG = "PilotWebserver";
+
+esp_err_t getParam(httpd_req_t *req, char* paramName, char* param, int sizeOfParam) {
+  int buf_len = httpd_req_get_url_query_len(req) + 1;
+  if (buf_len > 1) {
+        char* buf = (char*)malloc(buf_len);
+        ESP_RETURN_ON_FALSE(buf, ESP_ERR_NO_MEM, WEBSERVER_TAG, "buffer alloc failed");
+        if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+            ESP_LOGI(WEBSERVER_TAG, "Found URL query => %s", buf);
+            /* Get value of expected key from query string */
+            if (httpd_query_key_value(buf, paramName, param, sizeOfParam) == ESP_OK) {
+                ESP_LOGI(WEBSERVER_TAG, "Found URL query parameter => query1=%s", param);
+                return ESP_OK;
+                // example_uri_decode(dec_param, param, strnlen(param, EXAMPLE_HTTP_QUERY_KEY_MAX_LEN));
+                // ESP_LOGI(TAG, "Decoded query parameter => %s", dec_param);
+            }
+        }
+  }
+  return ESP_ERR_INVALID_ARG;
+}
+
+int getParamInt(httpd_req_t *req, char* paramName) {
+  char param[10];
+  getParam(req, paramName, param, sizeof(param));
+  return std::stoul(param,nullptr, 0);
 }
 
 //=========================
@@ -414,7 +480,7 @@ void setMode(int new_mode) {
 }
 
 void loop() {
-  server.handleClient();
+  //server.handleClient();
   ArduinoOTA.handle();
 // //  for (int i=0; i<3000; ++i) {
      readBrighnessFromEncoder();
@@ -429,26 +495,25 @@ void loop() {
    switch (mode) {
      case 0: 
        lampki(leds1, time_ms, prev_ms);
-
-       delay(1);
+       //delay(1);
        break;
      case 1: 
        rainbowSnakesDemo(leds1, time_ms);
-       delay(10);
+       //delay(10);
        break;
      case 2: 
        readMSGEQ7();
        stroboSimple(leds1, bandValues);  
-       delay(10);
+       //delay(10);
        break;
      case 3: 
        readMSGEQ7();
        rainbowSnakesStrobo(leds1, time_ms, bandValues);
-       delay(10);
+       //delay(10);
        break;
      case 4: 
-       drawColor(leds1, RGB_RED);
-       delay(100);
+       drawColor(leds1, color);
+       //delay(100);
        break;
     //  case 6:
     //    oneByOne(leds1, time_ms, 1000);
@@ -467,7 +532,7 @@ void loop() {
       //  drawColor(leds1, RGB_BLACK);
       //  drawColor(leds2, RGB_BLACK);
       //  drawColor(leds3, RGB_BLACK); 
-       delay(1);
+       //delay(1);
        break;
      case 6: 
        rainbow(leds1, time_ms);
@@ -478,19 +543,19 @@ void loop() {
 
     case 7:
       pulses(leds1, time_ms, 0x00ff00);
-      delay(1);
+      //delay(1);
     //  case 10:
     //    choinkaBlyskawica(leds1, time_ms);
     //    delay(10);
       break;
      case 8:
       snow(leds1, time_ms, /*0xffffff*/ 0xfaebd7);
-      delay(1);
+      //delay(1);
       break;
     case 9: {
       uint32_t kolory[] = { 0xFF4500, /*0xFFD7000xDAA520,*/ 0xFF4500, /*0x32CD32*/ 0x006400, 0x808000, /*0x4682B4*/0x191970, 0x8B4513, 0x800000};
       snow(leds1, time_ms, kolory, 7);
-      delay(1);
+      //delay(1);
       break;
     }
     case 10: {
@@ -516,12 +581,7 @@ void loop() {
     case 12: {
       snowIncremental(leds1, time_ms);
       break;
-    }    
-    //  case 10:
-    //    choinkaBlyskawica(leds1, time_ms);
-    //    delay(10);
-    default:
-      break;
+    }   
    }
     prev_ms = time_ms;
 //    Serial.printf("%d %d %d %d\n", digitalRead(PIN_BUTTON), digitalRead(PIN_ENCODER_BUTTON), digitalRead(PIN_ENCODER_A), digitalRead(PIN_ENCODER_B));
