@@ -1,0 +1,12 @@
+{
+    "domain": "ledstrip",
+    "name": "Ledstrip light",
+    "codeowners": ["@ptabor"],
+    "config_flow": false,
+    "dependencies": [],
+    "documentation": "https://github.com/ptabor/ledstrip",
+    "iot_class": "local_polling",    
+    "issue_tracker": "https://github.com/ptabor/ledstrip/issues",
+    "requirements": ["aiohttp"],
+    "version": "0.0.1"
+}
